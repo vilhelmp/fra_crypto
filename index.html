@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html style="height: 100%;" lang="en-US"><head>
+<title>2019 FRA crypto decoder/encoder</title>
+<meta charset="utf-8">
+<style>
+    
+h1 { color: #111; font-family: 'Helvetica Neue', sans-serif; font-size: 27px; font-weight: bold; letter-spacing: -1px; line-height: 1; text-align: center; }
+
+h2 { color: #111; font-family: 'Open Sans', sans-serif; font-size: 12px; font-weight: 300; line-height: 32px; margin: 0 0 72px; text-align: center; }
+
+p { color: #685206; font-family: 'Helvetica Neue', sans-serif; font-size: 15px; line-height: 24px; margin: 0 0 24px; text-align: justify; text-justify: inter-word; }
+
+input { 
+        border-radius: 5px;
+        border: 1px solid grey;
+        padding: 6px 10px;
+        margin: 5px 0;
+        box-sizing: border-box;
+	}
+    
+span#fraEncodedOutput {color: green;}
+
+span#fraDecodedOutput {color: green;}
+
+hr.stylish { 
+  border: 0; 
+  height: 1px; 
+  background-image: -webkit-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0);
+  background-image: -moz-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0);
+  background-image: -ms-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0);
+  background-image: -o-linear-gradient(left, #f0f0f0, #8c8b8b, #f0f0f0); 
+}
+
+</style>
+
+
+
+<script type="text/javascript">
+
+/*
+
+Short script to encrypt/decrypt the "crypto" in the annual report of 
+the Swedish FRA. See: https://www.nyteknik.se/popularteknik/utmaning-kan-du-losa-fra-s-krypto-6963169
+or https://www.fra.se/nyheter/nyhetsarkiv/news/arsrapportenfor2018publicerad.5.69cf97cd167832fc038242.html
+
+*/
+
+function fraEncoder(valChar) {
+  /* Define alphabet list */
+  var az = 'abcdefghijklmnopqrstuvwxyzåäö';
+  var str = valChar.toLowerCase();
+  var strSolution = "";
+  for (var i = 1; i < str.length+1; i++) { /* Loop through each character of the input */
+    if (i % 10 === 0 || i % 20 === 0 || i % 30 === 0)  /* If  evenly divisable by 10, 20, or 30, output=input*/
+    {
+        
+        var curSol = str.charAt(i-1);
+    }
+    else 
+    {
+        var x = az.indexOf(str.charAt(i-1)); /* Position in alphabet*/
+        var y = i.valueOf(); /* Position in string*/
+        if (y > 10) /* If above 10, start over, i.e. 11 is 1, 26 is 6 etc*/
+        {
+            y  = y - Math.floor(y/10)*10;
+        }
+        var newInd = x+y; /* Fin index of new letter */
+        if (newInd > az.length) { /* If we are beyond the alphabet, start over */
+            newInd = newInd - az.length;
+        }
+        else if (newInd < 0) /* Or if we are below zero, start at the end */
+        {
+            newInd = newInd + az.length;
+        }
+        var curSol = az.charAt(newInd);
+    }
+    /* Append character here */
+    console.log('Character', str.charAt(i-1), 'is no', x, 
+                'in alphabet, and', i, 'in input, which means to step', y,
+                 'steps forward in the alphabet, arriving at', az.charAt(newInd), '.' )
+    strSolution += curSol.toUpperCase()
+  }
+  /*  */
+  
+  /*  */  
+  
+  /* Set output element*/
+  document.getElementById("fraEncodedOutput").innerHTML = strSolution;
+  
+  
+} 
+
+
+function fraDecoder(valChar) {
+  /* Define alphabet list */
+  var az = 'abcdefghijklmnopqrstuvwxyzåäö';
+  var str = valChar.toLowerCase();
+  var strSolution = "";
+  for (var i = 1; i < str.length+1; i++) { /* Loop through each character of the input */
+    if (i % 10 === 0 || i % 20 === 0 || i % 30 === 0)  /* If  evenly divisable by 10, 20, or 30, output=input*/
+    {
+        
+        var curSol = str.charAt(i-1);
+    }
+    else 
+    {
+        var x = az.indexOf(str.charAt(i-1)); /* Position in alphabet*/
+        var y = i.valueOf(); /* Position in string*/
+        if (y > 10) /* If above 10, start over, i.e. 11 is 1, 26 is 6 etc*/
+        {
+            y  = y - Math.floor(y/10)*10;
+        }
+        var newInd = x-y; /* Fin index of new letter */
+        if (newInd > az.length) { /* If we are beyond the alphabet, start over */
+            newInd = newInd - az.length;
+        }
+        else if (newInd < 0) /* Or if we are below zero, start at the end */
+        {
+            newInd = newInd + az.length;
+        }
+        var curSol = az.charAt(newInd);
+    }
+    /* Append character here */
+    console.log('Character', str.charAt(i-1), 'is no', x, 
+                'in alphabet, and', i, 'in input, which means to step', y,
+                 'steps back in the alphabet, arriving at', az.charAt(newInd), '.' )
+    strSolution += curSol.toUpperCase()
+  }
+  /*  */
+  
+  /*  */  
+  
+  /* Set output element*/
+  document.getElementById("fraDecodedOutput").innerHTML = strSolution;
+} 
+
+</script>
+</head>
+<body>
+
+<h1>FRA annual report 2018 crypto decrypter/encrypter</h1>
+
+<p>While I am no wizard when it comes to JavaScript, I managed to put this thing together fairly easy. 
+Have fun! Also find the code at my GitHub page: <a href='https://github.com/vilhelmp'>https://github.com/vilhelmp</p>
+
+<p>
+  <label>Input encrypted message</label></label>
+  <input id="fraDecodeInput" type="character" placeholder="ÄTVVFVWWÅTYVYBYÅZMWASVRR"
+  oninput="fraDecoder(this.value)" onchange="fraDecoder(this.value)" size="26">
+</p>
+<p>Decrypted message <span id="fraDecodedOutput"></span></p> 
+
+<hr class='stylish' width='500px' align='left'>
+
+<p>
+  <label>Input message <strong>to encrypt</strong></label></label>
+  <input id="fraInput" type="character" placeholder="something fun"
+  oninput="fraEncoder(this.value)" onchange="fraEncoder(this.value)" size="26">
+  <script>document.getElementById('a');</script>
+</p>
+<p>Encrypted string <span id="fraEncodedOutput"></span></p> 
+
+<p>Check console output and source for explanation.</p>
+
+</body></html>
+
+
+
